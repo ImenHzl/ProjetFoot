@@ -1,6 +1,19 @@
 import requests
+import json
+from dotenv import load_dotenv
+import os
 
-def infoPlayers(met,apiKey,playerId):
+# Charger les variables d'environnement à partir du fichier .env
+load_dotenv()
+apiKey = os.getenv("MY_API")
+
+#cette fonction permet d'enregistrer les donnees dans un fichier json
+def enregistrerJson(infoplay):
+    # Enregistrez la chaîne JSON dans un fichier
+                with open("dataPlayer.json", "w") as jsonFile:
+                    json.dump(infoplay, jsonFile, indent=4) 
+
+def infoPlayers(met,playerId):
     url=f"https://apiv2.allsportsapi.com/football/?met={met}&APIkey={apiKey}&playerId={playerId}"
     response=requests.get(url)
     try:
@@ -12,6 +25,16 @@ def infoPlayers(met,apiKey,playerId):
                 player_number=elt.get('player_number', 'N/A')
                 player_age=elt.get('player_age', 'N/A')
                 player_goals=elt.get('player_goals', 'N/A')
+                infoplay={
+                    "nom du joueur": player_name,
+                    "numero du joeur":player_number,
+                    "age du joueur":player_age,
+                    "nombre de but":player_goals
+                }
+                jsonString = json.dumps(infoplay)
+                # Affichez la chaîne JSON
+                print(jsonString)
+                enregistrerJson(infoplay)
                 print(f"Les infos du joueur démandé sont: Nom: {player_name}| Numéro: {player_number} | Age: {player_age} | Goals: {player_goals}")   
     except requests.exceptions.RequestException as e:
         print("Une erreur s'est produite lors de la requête à l'API :", e)
@@ -19,7 +42,6 @@ def infoPlayers(met,apiKey,playerId):
         print("Une erreur s'est produite lors de la conversion de la réponse en JSON :", e)
 
 metV1="Players"
-apiKey="e4cbdfdb4ff3150de154c810d2f379eb96327fca07378933d56d3e67df8a7db6"
 playerId="103051168"
-reponse= infoPlayers(metV1, apiKey, playerId)
+reponse= infoPlayers(metV1, playerId)
 print(reponse)
